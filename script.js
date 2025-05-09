@@ -1,66 +1,31 @@
 $(document).ready(function () {
+  $('#addBtn').click(function () {
+    const taskText = $('#taskInput').val().trim();
+    if (taskText === '') return;
 
-    
-    loadTasks();
-  
-  
-    $('#addTaskBtn').click(function () {
-      const taskText = $('#taskInput').val().trim();
-      if (taskText !== "") {
-        const taskId = new Date().getTime(); // Unique task ID
-        const task = {
-          id: taskId,
-          text: taskText
-        };
-  
-        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-        tasks.push(task);
-        localStorage.setItem('tasks', JSON.stringify(tasks));
-        $('#taskInput').val('');
-        loadTasks();
+    const $li = $('<li></li>');
+    const $span = $('<span></span>').text(taskText);
+    const $actions = $('<div class="actions"></div>');
+
+    const $doneBtn = $('<button class="complete-btn">Done</button>').click(function () {
+      $li.toggleClass('completed');
+    });
+
+    const $editBtn = $('<button class="edit-btn">Edit</button>').click(function () {
+      const newText = prompt('Edit your task:', $span.text());
+      if (newText !== null && newText.trim() !== '') {
+        $span.text(newText.trim());
       }
     });
-  
-    
-    $(document).on('click', '.editBtn', function () {
-      const taskId = $(this).data('id');
-      const tasks = JSON.parse(localStorage.getItem('tasks'));
-      const task = tasks.find(t => t.id === taskId);
-      const newText = prompt('Edit task:', task.text);
-      if (newText !== null) {
-        task.text = newText;
-        localStorage.setItem('tasks', JSON.stringify(tasks));
-        loadTasks();
-      }
-    });
-  
 
-    $(document).on('click', '.deleteBtn', function () {
-      const taskId = $(this).data('id');
-      let tasks = JSON.parse(localStorage.getItem('tasks'));
-      tasks = tasks.filter(t => t.id !== taskId);
-      localStorage.setItem('tasks', JSON.stringify(tasks));
-      loadTasks();
+    const $deleteBtn = $('<button>Delete</button>').click(function () {
+      $li.remove();
     });
-  
-    
-    function loadTasks() {
-      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-      const taskList = $('#taskList');
-      taskList.empty();
-  
-      tasks.forEach(task => {
-        const taskItem = `
-          <li class="list-group-item task-item" data-id="${task.id}">
-            <span>${task.text}</span>
-            <div>
-              <button class="btn btn-warning btn-sm editBtn" data-id="${task.id}">Edit</button>
-              <button class="btn btn-danger btn-sm deleteBtn" data-id="${task.id}">Delete</button>
-            </div>
-          </li>
-        `;
-        taskList.append(taskItem);
-      });
-    }
-  
+
+    $actions.append($doneBtn, $editBtn, $deleteBtn);
+    $li.append($span, $actions);
+    $('#taskList').append($li);
+
+    $('#taskInput').val('');
   });
+});
